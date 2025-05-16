@@ -7,6 +7,7 @@ from app.db import Base
 
 
 class BorrowedBooks(Base):
+    __tablename__ = "borrowed"
     id: Mapped[int] = mapped_column(primary_key=True)
     book_id: Mapped[int] = mapped_column(
         ForeignKey("books.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
