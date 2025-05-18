@@ -10,6 +10,7 @@ from app.db import Base
 from app.modules.book.models import *
 from app.modules.borrowing.models import *
 from app.modules.reader.models import *
+from app.auth.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
