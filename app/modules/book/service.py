@@ -14,6 +14,10 @@ class BookService:
     ):
         self.repository = repository(session=session)
 
+    async def get_all(self):
+        result = await self.repository.get_all()
+        return BookResponse(data=result)
+
     async def add_one(self, data: BookCreateScheme):
         try:
             if await self.repository.is_exists_by_author_title_year(

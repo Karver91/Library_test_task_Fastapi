@@ -46,3 +46,16 @@ async def test_update_book(ac: AsyncClient, async_session: AsyncSession, books: 
     res = (await async_session.execute(stmt)).scalars().one_or_none()
     assert res is not None
     assert res.amount == payload.amount
+
+
+async def test_get_all_books(async_session: AsyncSession, ac: AsyncClient, books: list[Book]):
+    # вызываем ручку
+    resp = await ac.get(url=URL_PREFIX)
+    assert resp.status_code == HTTP_200_OK
+
+    # Проверяем данные в ответе
+    resp_data = resp.json()
+    resp_models = sorted([Book(**book) for book in resp_data['data']], key=lambda x: x.id)
+    books.sort(key=lambda x: x.id)
+    assert len(resp_models) == len(books)
+    assert map(lambda x, y: x.id == y.id, zip(resp_models, books))

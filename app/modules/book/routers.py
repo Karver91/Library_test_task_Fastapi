@@ -12,11 +12,15 @@ router = APIRouter(prefix="/books", tags=["Книги"])
 
 
 @router.get(
-    path="/"
+    path="/",
+    response_model=BookResponse,
+    summary="Получить все книги"
 )
-async def get_all():
-    # TODO: вернуть с id и количеством книг
-    ...
+async def get_all(
+        user: Annotated[User, Depends(user_dependency)],
+        service: Annotated[BookService, Depends(book_service)]
+):
+    return await service.get_all()
 
 
 @router.post(
