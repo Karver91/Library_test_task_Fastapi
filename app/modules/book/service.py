@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
 
 from app.modules.book.repository import BookRepository
-from app.modules.book.schemas import BookCreateScheme, BookResponse
+from app.modules.book.schemas import BookCreateScheme, BookResponse, BookScheme
 
 
 class BookService:
@@ -36,3 +36,13 @@ class BookService:
                 status_code=HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=err_msg
             )
+
+
+    async def update_one(self, _id, data: BookScheme):
+        if not await self.repository.is_exists(_id=_id):
+            raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Книга c id: {_id} не найдена")
+        data = data.model_dump(
+            exclude_unset=True,
+            exclude_none=True
+        )
+        return await self.repository.update_one(_id=_id, data=data)

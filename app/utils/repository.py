@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import insert, select, delete, exists
+from sqlalchemy import insert, select, delete, exists, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -61,6 +61,15 @@ class SQLAlchemyRepository(AbstractRepository):
     async def delete_one(self, _id):
         try:
             stmt = delete(self.model).where(self.model.id == _id)
+            await self.session.execute(stmt)
+            await self.session.commit()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise
+
+    async def update_one(self, _id, data):
+        try:
+            stmt = update(self.model).where(self.model.id == _id).values(**data)
             await self.session.execute(stmt)
             await self.session.commit()
         except SQLAlchemyError as e:

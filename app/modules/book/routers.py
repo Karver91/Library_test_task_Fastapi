@@ -1,11 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from starlette.status import HTTP_201_CREATED
+from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from app.auth.models import User
 from app.dependencies import book_service, user_dependency
-from app.modules.book.schemas import BookCreateScheme, BookResponse
+from app.modules.book.schemas import BookCreateScheme, BookResponse, BookScheme
 from app.modules.book.service import BookService
 
 router = APIRouter(prefix="/books", tags=["Книги"])
@@ -34,10 +34,17 @@ async def add_one(
 
 
 @router.patch(
-    path="/{book_id}"
+    path="/{book_id}",
+    status_code=HTTP_204_NO_CONTENT,
+    summary="Обновить данные по книге"
 )
-async def update_one():
-    ...
+async def update_one(
+        book_id: int,
+        request_info: BookScheme,
+        user: Annotated[User, Depends(user_dependency)],
+        service: Annotated[BookService, Depends(book_service)]
+):
+    return await service.update_one(_id=book_id, data=request_info)
 
 
 @router.delete(
