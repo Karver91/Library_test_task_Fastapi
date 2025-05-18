@@ -9,6 +9,8 @@ from app.auth.models import User
 from app.auth.repository import AuthRepository
 from app.auth.service import AuthService
 from app.db import get_async_session
+from app.modules.book.repository import BookRepository
+from app.modules.book.service import BookService
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login")  # это security scheme, который ищет токен в заголовке Authorization
@@ -28,3 +30,12 @@ async def user_dependency(
         token: Annotated[str, Depends(oauth2_scheme)],
 ) -> User:
     return await service.get_current_user(token)
+
+
+async def book_service(
+        session: AsyncSession = Depends(get_async_session)
+) -> BookService:
+    return BookService(
+        repository=BookRepository,
+        session=session
+    )
