@@ -1,7 +1,7 @@
 from random import choice
 
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
@@ -59,3 +59,20 @@ async def test_get_all_books(async_session: AsyncSession, ac: AsyncClient, books
     books.sort(key=lambda x: x.id)
     assert len(resp_models) == len(books)
     assert map(lambda x, y: x.id == y.id, zip(resp_models, books))
+
+
+async def test_delete_book(async_session: AsyncSession, ac: AsyncClient, books: list[Book]):
+    book = books[-1]
+
+    # вызываем ручку
+    resp = await ac.delete(url=f"{URL_PREFIX}{book.id}")
+    assert resp.status_code == HTTP_204_NO_CONTENT
+
+    # Проверяем бд
+    stmt = select(Book)
+    res = (await async_session.execute(stmt)).scalars().all()
+    assert len(res) == len(books) - 1
+
+    stmt = select(exists().where(Book.id == book.id))
+    res = await async_session.scalar(stmt)
+    assert res is False

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from pydantic import PositiveInt
 from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from app.auth.models import User
@@ -43,7 +44,7 @@ async def add_one(
     summary="Обновить данные по книге"
 )
 async def update_one(
-        book_id: int,
+        book_id: PositiveInt,
         request_info: BookScheme,
         user: Annotated[User, Depends(user_dependency)],
         service: Annotated[BookService, Depends(book_service)]
@@ -52,9 +53,13 @@ async def update_one(
 
 
 @router.delete(
-    path="/{book_id}"
+    path="/{book_id}",
+    status_code=HTTP_204_NO_CONTENT,
+    summary="Удалить книгу"
 )
-async def delete_one():
-    ...
-
-# разделить логику для добавления количества книг и добавления новой книги с новым автором или названием
+async def delete_one(
+        book_id: PositiveInt,
+        user: Annotated[User, Depends(user_dependency)],
+        service: Annotated[BookService, Depends(book_service)]
+):
+    return await service.delete_one(_id=book_id)

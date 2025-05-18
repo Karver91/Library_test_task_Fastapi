@@ -25,9 +25,5 @@ class BookWithID(BookCreateScheme):
     model_config = ConfigDict(from_attributes=True)
 
 
-class BookUpdateScheme(BookScheme):
-    pass
-
-
 class BookResponse(BaseResponse):
     data: list[BookWithID]

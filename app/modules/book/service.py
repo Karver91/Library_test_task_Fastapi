@@ -50,3 +50,9 @@ class BookService:
             exclude_none=True
         )
         return await self.repository.update_one(_id=_id, data=data)
+
+
+    async def delete_one(self, _id):
+        if not await self.repository.is_exists(_id=_id):
+            raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Книга c id: {_id} не найдена")
+        return await self.repository.delete_one(_id=_id)
