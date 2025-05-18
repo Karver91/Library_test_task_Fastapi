@@ -30,7 +30,7 @@ class AuthService:
     async def register(self, data: UserCreate):
         if await self.repository.get_user_by_email(email=data.email):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Пользователь с таким email уже существует")
-        data.password = await self.__get_password_hash(data.password)
+        data.hashed_password = await self.__get_password_hash(data.hashed_password)
         user = await self.repository.add_one(data.model_dump())
         return UserResponse(data=[user])
 

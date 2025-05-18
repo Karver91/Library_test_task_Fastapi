@@ -1,20 +1,25 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 
 from app.utils.schemas import BaseResponse
 
 
 class UserBase(BaseModel):
     email: EmailStr
+    created_at: datetime
 
 
-class UserCreate(UserBase):
-    password: str
+class UserCreate(BaseModel):
+    email: EmailStr
+    hashed_password: str = Field(alias="password")
+
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str
+    hashed_password: str = Field(alias="password")
+
 
 class UserWithID(UserBase):
     id: int
@@ -29,6 +34,7 @@ class UserResponse(BaseResponse):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 class TokenData(BaseModel):
     user_id: int
