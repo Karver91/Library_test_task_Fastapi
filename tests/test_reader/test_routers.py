@@ -1,7 +1,7 @@
 from random import choice
 
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT, HTTP_200_OK
 
@@ -73,3 +73,20 @@ async def test_get_all_readers(async_session: AsyncSession, ac: AsyncClient, rea
     readers.sort(key=lambda x: x.id)
     assert len(resp_models) == len(readers)
     assert map(lambda x, y: x.id == y.id, zip(resp_models, readers))
+
+
+async def test_delete_reader(async_session: AsyncSession, ac: AsyncClient, readers: list[Reader]):
+    reader = readers[-1]
+
+    # вызываем ручку
+    resp = await ac.delete(url=f"{URL_PREFIX}{reader.id}")
+    assert resp.status_code == HTTP_204_NO_CONTENT
+
+    # Проверяем бд
+    stmt = select(Reader)
+    res = (await async_session.execute(stmt)).scalars().all()
+    assert len(res) == len(readers) - 1
+
+    stmt = select(exists().where(Reader.id == reader.id))
+    res = await async_session.scalar(stmt)
+    assert res is False

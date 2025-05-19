@@ -63,4 +63,4 @@ async def delete_one(
         user: Annotated[User, Depends(user_dependency)],
         service: Annotated[ReaderService, Depends(reader_service)]
 ):
-    ...
+    return await service.delete_one(_id=reader_id)
