@@ -50,7 +50,7 @@ async def update_one(
         user: Annotated[User, Depends(user_dependency)],
         service: Annotated[ReaderService, Depends(reader_service)]
 ):
-    ...
+    return await service.update_one(_id=reader_id, data=request_info)
 
 
 @router.delete(

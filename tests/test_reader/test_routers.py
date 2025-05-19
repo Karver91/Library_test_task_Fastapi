@@ -3,10 +3,10 @@ from random import choice
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
 
 from app.modules.reader.models import Reader
-from app.modules.reader.schemas import ReaderCreateScheme
+from app.modules.reader.schemas import ReaderCreateScheme, ReaderScheme
 
 URL_PREFIX = "/readers/"
 
@@ -43,3 +43,20 @@ async def test_add_reader_400_email_is_exists(
     # вызываем ручку
     resp = await ac.post(url=URL_PREFIX, json=payload)
     assert resp.status_code == HTTP_400_BAD_REQUEST
+
+
+async def test_update_reader(ac: AsyncClient, async_session: AsyncSession, readers: list[Reader]):
+    reader = choice(readers)
+    payload = ReaderScheme(
+        name="Some Random Name"
+    )
+
+    # вызываем ручку
+    resp = await ac.patch(url=f"{URL_PREFIX}{reader.id}", json=payload.model_dump(mode="json"))
+    assert resp.status_code == HTTP_204_NO_CONTENT
+
+    # Проверяем изменения в базе
+    stmt = select(Reader).where(Reader.id == reader.id)
+    res = (await async_session.execute(stmt)).scalars().one_or_none()
+    assert res is not None
+    assert res.name == payload.name
