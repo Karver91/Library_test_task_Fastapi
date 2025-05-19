@@ -11,6 +11,8 @@ from app.auth.service import AuthService
 from app.db import get_async_session
 from app.modules.book.repository import BookRepository
 from app.modules.book.service import BookService
+from app.modules.reader.repository import ReaderRepository
+from app.modules.reader.service import ReaderService
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login")  # это security scheme, который ищет токен в заголовке Authorization
@@ -37,5 +39,14 @@ async def book_service(
 ) -> BookService:
     return BookService(
         repository=BookRepository,
+        session=session
+    )
+
+
+async def reader_service(
+        session: AsyncSession = Depends(get_async_session)
+) -> ReaderService:
+    return ReaderService(
+        repository=ReaderRepository,
         session=session
     )

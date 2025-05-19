@@ -12,6 +12,7 @@ from app.db import Base, get_async_session
 from app.dependencies import user_dependency
 from app.main import app
 from app.modules.book.models import Book
+from app.modules.reader.models import Reader
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
@@ -77,3 +78,16 @@ async def books(async_session: AsyncSession) -> list[Book]:
     async_session.add_all(books)
     await async_session.flush()
     return books
+
+
+@pytest_asyncio.fixture(scope="function")
+async def readers(async_session: AsyncSession) -> list[Reader]:
+    readers = [
+        Reader(
+            name=f"Reader_{i}",
+            email=f"reader{i}@text.com"
+        ) for i in range(1, 4)
+    ]
+    async_session.add_all(readers)
+    await async_session.flush()
+    return readers

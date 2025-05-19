@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 
+from asyncpg import UniqueViolationError
+from fastapi import HTTPException
 from sqlalchemy import insert, select, delete, exists, update
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.status import HTTP_400_BAD_REQUEST
 
 
 class AbstractRepository(ABC):
@@ -26,6 +29,10 @@ class AbstractRepository(ABC):
     async def delete_one(self, _id):
         raise NotImplementedError
 
+    @abstractmethod
+    async def update_one(self, _id, data):
+        raise NotImplementedError
+
 
 class SQLAlchemyRepository(AbstractRepository):
     model = None
@@ -44,6 +51,16 @@ class SQLAlchemyRepository(AbstractRepository):
             result = await self.session.execute(stmt)
             await self.session.commit()
             return result.scalar_one()
+        except IntegrityError as e:
+            await self.session.rollback()
+            if getattr(e, "orig", None) and (sqlstate := getattr(e.orig, "sqlstate", None)):
+                match sqlstate:
+                    case "23505":
+                        raise HTTPException(
+                            status_code=HTTP_400_BAD_REQUEST,
+                            detail="Нарушение уникальности (UNIQUE constraint). Запись с таким значением уже есть в базе"
+                        )
+            raise
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise
@@ -72,6 +89,16 @@ class SQLAlchemyRepository(AbstractRepository):
             stmt = update(self.model).where(self.model.id == _id).values(**data)
             await self.session.execute(stmt)
             await self.session.commit()
+        except IntegrityError as e:
+            await self.session.rollback()
+            if getattr(e, "orig", None) and (sqlstate := getattr(e.orig, "sqlstate", None)):
+                match sqlstate:
+                    case "23505":
+                        raise HTTPException(
+                            status_code=HTTP_400_BAD_REQUEST,
+                            detail="Нарушение уникальности (UNIQUE constraint). Запись с таким значением уже есть в базе"
+                        )
+            raise
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise
