@@ -14,6 +14,10 @@ class ReaderService:
     ):
         self.repository = repository(session=session)
 
+    async def get_all(self):
+        result = await self.repository.get_all()
+        return ReaderResponse(data=result)
+
     async def add_one(self, data: ReaderCreateScheme):
         try:
             result = await self.repository.add_one(data.model_dump())

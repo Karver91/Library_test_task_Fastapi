@@ -3,7 +3,7 @@ from random import choice
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT
+from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT, HTTP_200_OK
 
 from app.modules.reader.models import Reader
 from app.modules.reader.schemas import ReaderCreateScheme, ReaderScheme
@@ -60,3 +60,16 @@ async def test_update_reader(ac: AsyncClient, async_session: AsyncSession, reade
     res = (await async_session.execute(stmt)).scalars().one_or_none()
     assert res is not None
     assert res.name == payload.name
+
+
+async def test_get_all_readers(async_session: AsyncSession, ac: AsyncClient, readers: list[Reader]):
+    # вызываем ручку
+    resp = await ac.get(url=URL_PREFIX)
+    assert resp.status_code == HTTP_200_OK
+
+    # Проверяем данные в ответе
+    resp_data = resp.json()
+    resp_models = sorted([Reader(**reader) for reader in resp_data['data']], key=lambda x: x.id)
+    readers.sort(key=lambda x: x.id)
+    assert len(resp_models) == len(readers)
+    assert map(lambda x, y: x.id == y.id, zip(resp_models, readers))

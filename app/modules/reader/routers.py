@@ -22,7 +22,7 @@ async def get_all(
         user: Annotated[User, Depends(user_dependency)],
         service: Annotated[ReaderService, Depends(reader_service)]
 ):
-    ...
+    return await service.get_all()
 
 
 @router.post(
