@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, ConfigDict, PositiveInt
+from pydantic import BaseModel, Field, ConfigDict, PositiveInt, NonNegativeInt
 
 from app.utils.schemas import BaseResponse
 
@@ -16,7 +16,7 @@ class BookScheme(BaseModel):
 class BookCreateScheme(BookScheme):
     name: str
     author: str
-    amount: PositiveInt = 1
+    amount: NonNegativeInt = 1
 
 
 class BookWithID(BookCreateScheme):

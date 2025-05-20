@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 
@@ -17,3 +17,6 @@ class BorrowedBooks(Base):
     )
     borrow_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     return_date: Mapped[datetime] = mapped_column(nullable=True, server_default=None)
+
+    reader = relationship("Reader", back_populates="borrowed_books")
+    book = relationship("Book", back_populates="borrowed_books")

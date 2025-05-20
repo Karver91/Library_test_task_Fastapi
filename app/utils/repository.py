@@ -26,6 +26,10 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def get_by_filters(self, filters):
+        raise NotImplementedError
+
+    @abstractmethod
     async def delete_one(self, _id):
         raise NotImplementedError
 
@@ -72,6 +76,11 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def get_all(self):
         stmt = select(self.model)
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_by_filters(self, filters: dict):
+        stmt = select(self.model).filter_by(**filters)
         result = await self.session.execute(stmt)
         return result.scalars().all()
 

@@ -10,7 +10,7 @@ from app.dependencies import user_dependency, reader_service
 from app.modules.reader.schemas import ReaderCreateScheme, ReaderResponse, ReaderScheme
 from app.modules.reader.service import ReaderService
 
-router = APIRouter(prefix="/readers")
+router = APIRouter(prefix="/readers", tags=["Читатели"])
 
 
 @router.get(

@@ -11,6 +11,8 @@ from app.auth.service import AuthService
 from app.db import get_async_session
 from app.modules.book.repository import BookRepository
 from app.modules.book.service import BookService
+from app.modules.borrowing.repository import BorrowingRepository
+from app.modules.borrowing.service import BorrowingService
 from app.modules.reader.repository import ReaderRepository
 from app.modules.reader.service import ReaderService
 
@@ -48,5 +50,14 @@ async def reader_service(
 ) -> ReaderService:
     return ReaderService(
         repository=ReaderRepository,
+        session=session
+    )
+
+
+async def borrowing_service(
+        session: AsyncSession = Depends(get_async_session)
+) -> BorrowingService:
+    return BorrowingService(
+        repository=BorrowingRepository,
         session=session
     )
