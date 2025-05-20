@@ -14,7 +14,8 @@ router = APIRouter(prefix="/auth", tags=["Аутентификация"])
 @router.post(
     path="/register",
     response_model=UserResponse,
-    status_code=HTTP_201_CREATED
+    status_code=HTTP_201_CREATED,
+    summary="Регистрация"
 )
 async def register(
         user_data: UserCreate,
@@ -25,7 +26,8 @@ async def register(
 
 @router.post(
     path="/login",
-    response_model=Token
+    response_model=Token,
+    summary="Логин"
 )
 async def login(
         service: Annotated[AuthService, Depends(auth_service)],
