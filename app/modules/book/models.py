@@ -8,6 +8,7 @@ class Book(Base):
     __tablename__ = "books"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(nullable=True)
     author: Mapped[str] = mapped_column(nullable=False)
     year: Mapped[int] = mapped_column(nullable=True)
     isbn: Mapped[str] = mapped_column(unique=True, nullable=True)
