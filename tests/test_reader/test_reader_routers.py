@@ -5,8 +5,9 @@ from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_204_NO_CONTENT, HTTP_200_OK
 
+from app.modules.borrowing.models import BorrowedBooks
 from app.modules.reader.models import Reader
-from app.modules.reader.schemas import ReaderCreateScheme, ReaderScheme
+from app.modules.reader.schemas import ReaderCreateScheme, ReaderScheme, ReaderWithBorrowingResponse
 
 URL_PREFIX = "/readers/"
 
@@ -90,3 +91,17 @@ async def test_delete_reader(async_session: AsyncSession, ac: AsyncClient, reade
     stmt = select(exists().where(Reader.id == reader.id))
     res = await async_session.scalar(stmt)
     assert res is False
+
+
+async def test_get_reader_books(async_session: AsyncSession, ac: AsyncClient, borrowing: list[BorrowedBooks]):
+    borrow_record = choice(borrowing)
+    reader_id = borrow_record.reader_id
+
+    # вызываем ручку
+    resp = await ac.get(url=f"{URL_PREFIX}{reader_id}/books")
+    assert resp.status_code == HTTP_200_OK
+    response_data = resp.json()
+    data = ReaderWithBorrowingResponse(data=response_data['data']).data
+    borrowed = data[0].borrowed_books
+    for record in borrowed:
+        assert record.return_date is None

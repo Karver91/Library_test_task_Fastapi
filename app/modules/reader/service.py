@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from app.modules.reader.repository import ReaderRepository
-from app.modules.reader.schemas import ReaderCreateScheme, ReaderResponse, ReaderScheme
+from app.modules.reader.schemas import ReaderCreateScheme, ReaderResponse, ReaderScheme, ReaderWithBorrowingResponse
 
 
 class ReaderService:
@@ -48,3 +48,9 @@ class ReaderService:
         if not await self.repository.is_exists(_id=_id):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Читатель c id: {_id} не найден")
         return await self.repository.delete_one(_id=_id)
+
+    async def get_reader_books(self, _id):
+        if not await self.repository.is_exists(_id=_id):
+            raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Читатель c id: {_id} не найден")
+        result = await self.repository.get_reader_books(reader_id = _id)
+        return ReaderWithBorrowingResponse(data=[result])

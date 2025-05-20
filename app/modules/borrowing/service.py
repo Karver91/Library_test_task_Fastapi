@@ -1,17 +1,13 @@
 from datetime import datetime
 
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from app.modules.book.repository import BookRepository
-from app.modules.book.schemas import BookWithID
 from app.modules.borrowing.repository import BorrowingRepository
-from app.modules.borrowing.schemas import BorrowingCreateScheme, BorrowingResponse, BorrowingResponseScheme, \
+from app.modules.borrowing.schemas import BorrowingCreateScheme, \
     BorrowingCreateResponse
-from app.modules.reader.schemas import ReaderWithID
 
 
 class BorrowingService:

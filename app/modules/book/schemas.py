@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, ConfigDict, PositiveInt, NonNegativeInt
+from pydantic import BaseModel, ConfigDict, PositiveInt, NonNegativeInt
 
 from app.utils.schemas import BaseResponse
 

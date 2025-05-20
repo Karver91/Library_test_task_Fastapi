@@ -6,7 +6,7 @@ from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from app.auth.models import User
 from app.dependencies import user_dependency, borrowing_service
-from app.modules.borrowing.schemas import BorrowingCreateScheme, BorrowingResponse, BorrowingCreateResponse
+from app.modules.borrowing.schemas import BorrowingCreateScheme, BorrowingCreateResponse
 from app.modules.borrowing.service import BorrowingService
 
 router = APIRouter(prefix="/borrowing", tags=["Выдача книг"])

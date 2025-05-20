@@ -7,7 +7,7 @@ from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from app.auth.models import User
 from app.dependencies import user_dependency, reader_service
-from app.modules.reader.schemas import ReaderCreateScheme, ReaderResponse, ReaderScheme
+from app.modules.reader.schemas import ReaderCreateScheme, ReaderResponse, ReaderScheme, ReaderWithBorrowingResponse
 from app.modules.reader.service import ReaderService
 
 router = APIRouter(prefix="/readers", tags=["Читатели"])
@@ -64,3 +64,16 @@ async def delete_one(
         service: Annotated[ReaderService, Depends(reader_service)]
 ):
     return await service.delete_one(_id=reader_id)
+
+
+@router.get(
+    path="/{reader_id}/books",
+    response_model=ReaderWithBorrowingResponse,
+    summary="Получить список всех невозвращенных книг читателя"
+)
+async def get_reader_books(
+        reader_id: PositiveInt,
+        user: Annotated[User, Depends(user_dependency)],
+        service: Annotated[ReaderService, Depends(reader_service)]
+):
+    return await service.get_reader_books(_id=reader_id)

@@ -1,4 +1,4 @@
-from sqlalchemy import exists, and_, select
+from sqlalchemy import exists, select
 
 from app.modules.book.models import Book
 from app.utils.repository import SQLAlchemyRepository
