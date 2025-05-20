@@ -1,0 +1,35 @@
+services:
+  db:
+    container_name: postgres_container
+    image: postgres:17-alpine
+    env_file: .env
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASS
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    container_name: app_container
+    build:
+      context: .
+    image: test_task
+    env_file: '.env'
+    environment:
+      DB_HOST: db
+    ports:
+      - 9999:8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
+    
