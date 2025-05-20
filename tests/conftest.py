@@ -12,6 +12,7 @@ from app.db import Base, get_async_session
 from app.dependencies import user_dependency
 from app.main import app
 from app.modules.book.models import Book
+from app.modules.borrowing.models import BorrowedBooks
 from app.modules.reader.models import Reader
 
 
@@ -91,3 +92,22 @@ async def readers(async_session: AsyncSession) -> list[Reader]:
     async_session.add_all(readers)
     await async_session.flush()
     return readers
+
+
+@pytest_asyncio.fixture(scope="function")
+async def borrowing(
+        async_session: AsyncSession,
+        books: list[Book],
+        readers: list[Reader]
+) -> list[BorrowedBooks]:
+    book_id = choice(books).id
+    reader_id = choice(readers).id
+    borrowing = [
+        BorrowedBooks(
+            book_id=book_id,
+            reader_id=reader_id
+        )
+    ]
+    async_session.add_all(borrowing)
+    await async_session.flush()
+    return borrowing

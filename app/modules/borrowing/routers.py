@@ -1,8 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from pydantic.v1 import PositiveInt
-from starlette.status import HTTP_201_CREATED
+from pydantic import PositiveInt
+from starlette.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 
 from app.auth.models import User
 from app.dependencies import user_dependency, borrowing_service
@@ -18,20 +18,22 @@ router = APIRouter(prefix="/borrowing", tags=["Выдача книг"])
     status_code=HTTP_201_CREATED,
     summary="Выдать книгу"
 )
-async def create_borrowing(
+async def borrow_book(
         request_info: BorrowingCreateScheme,
         user: Annotated[User, Depends(user_dependency)],
         service: Annotated[BorrowingService, Depends(borrowing_service)]
 ):
-    return await service.create_borrowing(data=request_info)
+    return await service.borrow_book(data=request_info)
 
 
-@router.delete(
-    path="/{borrowing_id}"
+@router.post(
+    path="/{borrowing_id}",
+    status_code=HTTP_204_NO_CONTENT,
+    summary="Вернуть книгу"
 )
-async def delete_borrowing(
-
+async def return_book(
+        borrowing_id: PositiveInt,
+        user: Annotated[User, Depends(user_dependency)],
+        service: Annotated[BorrowingService, Depends(borrowing_service)]
 ):
-    ...
-
-# TODO: два метода POST и DELETE
+    return await service.return_book(borrowing_id)
